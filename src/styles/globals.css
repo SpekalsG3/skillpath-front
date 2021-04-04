@@ -1,0 +1,41 @@
+@import "./fonts.css";
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Inter', serif;
+  font-weight: normal;
+  font-size: 16px;
+}
+
+button {
+  cursor: pointer;
+  font-family: 'Inter', serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  list-style: none;
+}
+
+.container {
+  width: 1140px;
+  margin: auto;
+}
+
+.recharts-cartesian-axis-tick-line {
+  display: none;
+}
+
+.recharts-cartesian-axis-line {
+  display: none;
+}

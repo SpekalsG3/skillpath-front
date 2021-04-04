@@ -1,0 +1,54 @@
+.input-range__slider {
+  appearance: none;
+  background: #f90;
+  border-radius: 100%;
+  cursor: pointer;
+  display: block;
+  height: 13px;
+  margin-left: -0.5rem;
+  margin-top: -8px;
+  outline: none;
+  position: absolute;
+  top: 50%;
+  width: 13px;
+}
+
+.input-range__slider:active {
+  transform: scale(1.3);
+}
+
+.input-range__slider:focus {
+  box-shadow: 0 0 0 5px rgba(63, 81, 181, 0.2);
+}
+
+.input-range--disabled .input-range__slider {
+  box-shadow: none;
+  transform: none;
+}
+
+.input-range__label {
+  display: none;
+}
+
+.input-range__track {
+  border-radius: 0.3rem;
+  cursor: pointer;
+  display: block;
+  height: 3px;
+  position: relative;
+}
+
+.input-range__track--background {
+  left: 0;
+}
+
+.input-range__track--active {
+  background: #f90;
+}
+
+.input-range {
+  position: relative;
+  width: 100%;
+  background: transparent;
+  top: 2px;
+}
