@@ -1,0 +1,29 @@
+@import 'styles/variables';
+
+.map {
+  width: 100%;
+  overflow: scroll;
+  align-items: center;
+  justify-content: center;
+}
+
+.nodes text {
+  fill: $colorTextMain;
+  text-anchor: middle;
+}
+
+.nodes rect {
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.7));
+  fill: $colorBackgroundMainBlue;
+}
+
+.markUp line {
+  stroke-dasharray: 8, 25;
+  stroke-width: 1;
+  stroke: $colorTextSecond;
+}
+
+.lines line {
+  stroke-width: 1;
+  stroke: $colorTextMain;
+}

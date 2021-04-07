@@ -1,19 +1,16 @@
 import React from 'react'
 
-import './styles/globals.css'
-import './styles/input-range.css'
-import './styles/variables.scss'
+import 'styles/globals.scss'
+import 'styles/input-range.css'
+import 'styles/variables.scss'
 
 import { Provider } from 'react-redux'
 import Head from 'next/head'
 
-import initialPageProps from 'pages/_initial'
-
-import { reduxCreateStore } from './store/index'
+import { reduxCreateStore } from 'store'
 
 export default function App ({ Component, pageProps, initialState }) {
   const [store] = React.useState(reduxCreateStore(initialState))
-  initialPageProps(store, pageProps)
 
   return (
     <Provider store={store}>

@@ -1,4 +1,5 @@
 @import "./fonts.css";
+@import './variables';
 
 html,
 body {
@@ -7,6 +8,7 @@ body {
   font-family: 'Inter', serif;
   font-weight: normal;
   font-size: 16px;
+  background: $colorBackgroundMainBlue;
 }
 
 button {
@@ -28,7 +30,7 @@ a {
 }
 
 .container {
-  width: 1140px;
+  max-width: 1140px;
   margin: auto;
 }
 

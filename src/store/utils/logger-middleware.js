@@ -1,6 +1,6 @@
-import Logger from 'libs/logger'
+import Logger from '../../utils/logger'
 
-const logger = new Logger({ name: 'REDUX-ACTION' })
+const logger = new Logger('REDUX-ACTION')
 
 export default function loggerMiddleware () {
   return function nextMiddleware (next) {

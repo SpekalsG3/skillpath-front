@@ -1,0 +1,25 @@
+@import 'styles/variables';
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 75px;
+  margin: 0 18px;
+}
+
+.headerLogo {
+  font-size: $xxlFontSize;
+  font-family: Roboto, sans-serif;
+  color: $colorTextMain;
+}
+
+.headerButton {
+  padding: 5px 10px;
+  border-radius: 25px;
+  color: $colorTextSecond;
+}
+
+.headerSignUp {
+  border: 1px solid #fff;
+}

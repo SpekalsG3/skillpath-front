@@ -1,7 +1,7 @@
 import { handleActions } from 'redux-actions'
 import api from 'config/api'
 
-export const storeKey = '@redux/loans'
+export const storeKey = '@redux/parsed-skills'
 
 const SET_PARSED_SKILLS = '@loans/SET_PARSED_SKILLS'
 
@@ -18,9 +18,9 @@ export const reducer = handleActions(
 
 export const getParsedSkills = (state) => state[storeKey].parsedSkills
 
-export const _fetchParsedSkills = async () => {
+export const _fetchParsedSkills = async (query) => {
   try {
-    const { data } = await api.get('/v1/parsed-skills')
+    const { data } = await api.get(`v1/parsed-skills${query}`)
     return data?.response || []
   } catch (ignore) {
     return []
@@ -30,15 +30,15 @@ export const _fetchParsedSkills = async () => {
 export const setParsedSkills = ({ parsedSkills }) => dispatch => {
   dispatch({
     type: SET_PARSED_SKILLS,
-    parsedSkills,
+    parsedSkills: parsedSkills,
   })
 }
 
-export const fetchParsedSkills = () => async dispatch => {
+export const fetchParsedSkills = (query) => async dispatch => {
   try {
-    const data = await _fetchParsedSkills()
+    const data = await _fetchParsedSkills(query)
     await dispatch(setParsedSkills({ parsedSkills: data }))
-    return data
+    return data.response
   } catch (ignore) {
     return null
   }
