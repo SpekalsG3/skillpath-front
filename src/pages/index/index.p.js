@@ -1,10 +1,10 @@
-import React from 'react'
+import React from 'react';
 
-import useHeader from 'utils/use-header'
+import useHeader from 'utils/use-header';
 
-import Header from 'components/ui/header'
-import Map from './components/map'
-import Footer from 'components/ui/footer'
+import Header from 'components/ui/header';
+import Map from './components/map';
+import Footer from 'components/ui/footer';
 
 export default function IndexPage () {
   const head = useHeader(
@@ -19,5 +19,5 @@ export default function IndexPage () {
       <Map/>
       <Footer/>
     </div>
-  )
+  );
 }

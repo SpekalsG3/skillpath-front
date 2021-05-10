@@ -1,5 +1,5 @@
 // hack ... nextjs such nextjs
 
-import IndexPage from './index/index.p'
+import IndexPage from './index/index.p';
 
-export default IndexPage
+export default IndexPage;

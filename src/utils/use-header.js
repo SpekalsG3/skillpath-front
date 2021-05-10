@@ -1,4 +1,4 @@
-import Head from 'next/head'
+import Head from 'next/head';
 
 const useHeader = (title, description) => {
   return (
@@ -23,7 +23,7 @@ const useHeader = (title, description) => {
       />
 
     </Head>
-  )
-}
+  );
+};
 
-export default useHeader
+export default useHeader;

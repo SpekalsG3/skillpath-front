@@ -1,16 +1,16 @@
-import React from 'react'
+import React from 'react';
 
-import 'styles/globals.scss'
-import 'styles/input-range.css'
-import 'styles/variables.scss'
+import 'styles/globals.scss';
+import 'styles/input-range.css';
+import 'styles/variables.scss';
 
-import { Provider } from 'react-redux'
-import Head from 'next/head'
+import { Provider } from 'react-redux';
+import Head from 'next/head';
 
-import { reduxCreateStore } from 'store'
+import { reduxCreateStore } from 'store';
 
 export default function App ({ Component, pageProps, initialState }) {
-  const [store] = React.useState(reduxCreateStore(initialState))
+  const [store] = React.useState(reduxCreateStore(initialState));
 
   return (
     <Provider store={store}>
@@ -26,11 +26,11 @@ export default function App ({ Component, pageProps, initialState }) {
       </Head>
       <Component {...pageProps} />
     </Provider>
-  )
+  );
 }
 
 App.getInitialProps = async ({ ctx }) => {
-  const store = reduxCreateStore({})
-  ctx.store = store
-  return { initialState: store.getState() }
-}
+  const store = reduxCreateStore({});
+  ctx.store = store;
+  return { initialState: store.getState() };
+};

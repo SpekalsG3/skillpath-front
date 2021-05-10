@@ -20,10 +20,16 @@ module.exports = {
   plugins: ['react'],
   rules: {
     camelcase: 'off',
+    semi: ['error', 'always'],
     'react/react-in-jsx-scope': 'off',
     'comma-dangle': ['error', 'always-multiline'],
     'max-len': ['error', { code: 150 }],
+    quotes: [
+      'error',
+      'single',
+    ],
     'jsx-quotes': [2, 'prefer-double'],
     'react/prop-types': 'off',
+    'object-curly-spacing': ['error', 'always'],
   },
-}
+};
