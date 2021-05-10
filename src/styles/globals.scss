@@ -8,7 +8,7 @@ body {
   font-family: 'Inter', serif;
   font-weight: normal;
   font-size: 16px;
-  background: $colorBackgroundMainBlue;
+  background: $colorMain;
 }
 
 button {
@@ -29,15 +29,7 @@ a {
   list-style: none;
 }
 
-.container {
-  max-width: 1140px;
-  margin: auto;
-}
-
-.recharts-cartesian-axis-tick-line {
-  display: none;
-}
-
-.recharts-cartesian-axis-line {
-  display: none;
+.content {
+  position: relative;
+  min-height: calc(100vh - 75px - 0px); // 100vh - header height - footer height
 }

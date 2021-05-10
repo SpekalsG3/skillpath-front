@@ -13,11 +13,11 @@ module.exports = withImages({
   poweredByHeader: false,
   pageExtensions: ['p.js'],
   devIndicators: {
-    autoPrerender: false
+    autoPrerender: false,
   },
   env: {
     DEV: process.env.NODE_ENV === 'development',
     API_URL: process.env.API_URL,
-    API_KEY: process.env.API_KEY
-  }
+    API_KEY: process.env.API_KEY,
+  },
 })

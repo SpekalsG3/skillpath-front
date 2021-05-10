@@ -1,20 +1,22 @@
-import Link from 'next/link'
-import cn from 'classnames'
+import Link from 'next/link';
+import cn from 'classnames';
 
-import styles from './styles.module.scss'
+import styles from './styles.module.scss';
 
 export default function Header () {
   return (
     <div className={styles.header}>
-      <div className={styles.headerLogo}>SkillPath</div>
+      <Link href="/">
+        <a className={styles.headerLogo}>SkillPath</a>
+      </Link>
       <div>
         <Link href="/sign-in">
-          <a className={styles.headerButton}>Sign-up</a>
+          <a className={styles.headerButton}>Sign in</a>
         </Link>
         <Link href="/sign-up">
-          <a className={cn(styles.headerButton, styles.headerSignUp)}>Sign-in</a>
+          <a className={cn(styles.headerButton, styles.headerSignUp)}>Sign up</a>
         </Link>
       </div>
     </div>
-  )
+  );
 }
