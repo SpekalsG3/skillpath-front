@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { fetchParsedSkills, getParsedSkills } from 'store/reducers/parsed-skills';
+import {
+  fetchParsedSkills,
+  getParsedSkills,
+  fetchAssociationsSkills,
+  getAssociationsForSkills,
+} from 'store/reducers/parsed-skills';
 import {
   fetchSpecializationsForSkills,
   getSpecializationsForSkills,
@@ -25,28 +30,82 @@ export default function Map () {
   const parsedSkills = useSelector(getParsedSkills);
   const specializationsForSkills = useSelector(getSpecializationsForSkills);
   const specializations = useSelector(getSpecializations);
+  const associationsForSkills = useSelector(getAssociationsForSkills);
 
   const [width, setWidth] = useState(1920);
   const [height, setHeight] = useState(1005); // 1080 - 75 (header)
   const [graph, setGraph] = useState([]);
   const [lines, setLines] = useState([]);
   const [markupLines, setMarkupLines] = useState([]);
+  const [linksMap, setLinksMap] = useState({});
+
+  useEffect(() => {
+    const newLinks = parsedSkills.reduce((newLinksData, skill) => {
+      if (newLinksData[skill.id]) {
+        // remove duplicate links
+        newLinksData[skill.id].children = associationsForSkills[skill.id]
+          ? Object.keys(associationsForSkills[skill.id]).reduce((newAssociations, skillId) => {
+            if (!newLinksData[skillId]?.children[skill.id]) {
+              newAssociations[skillId] = associationsForSkills[skill.id][skillId];
+            }
+            return newAssociations;
+          }, {})
+          : {};
+
+        while (newLinksData[skill.id].parents.length > 1) {
+          const firstParentLink = newLinksData[skill.id].parents[0];
+          const secondParentLink = newLinksData[skill.id].parents[1];
+
+          if (firstParentLink.count < secondParentLink.count) {
+            delete newLinksData[firstParentLink.id].children[skill.id];
+            newLinksData[skill.id].parents.splice(0, 1);
+          } else {
+            delete newLinksData[secondParentLink.id].children[skill.id];
+            newLinksData[skill.id].parents.splice(1, 1);
+          }
+        }
+      } else {
+        newLinksData[skill.id] = {
+          children: associationsForSkills[skill.id] || {},
+          parents: [],
+        };
+      }
+
+      Object.keys(newLinksData[skill.id].children).forEach((skillId) => {
+        const link = newLinksData[skill.id].children[skillId];
+
+        if (newLinksData[link.skillId]) {
+          newLinksData[link.skillId].parents.push({
+            id: skill.id,
+            count: link.count,
+          });
+        } else {
+          newLinksData[link.skillId] = {
+            children: {},
+            parents: [{
+              id: skill.id,
+              count: link.count,
+            }],
+          };
+        }
+      });
+
+      return newLinksData;
+    }, {});
+
+    setLinksMap(newLinks);
+  }, [parsedSkills, associationsForSkills]);
 
   useEffect(() => {
     dispatch(fetchParsedSkills(query));
     dispatch(fetchSpecializationsForSkills());
     dispatch(fetchSpecializations());
-
-    const timer = setInterval(() => {
-      dispatch(fetchParsedSkills(query));
-      dispatch(fetchSpecializationsForSkills());
-    }, 10000);
-
-    return () => clearInterval(timer);
+    dispatch(fetchAssociationsSkills());
   }, []);
 
   useEffect(() => {
-    if (specializations.length === 0 || parsedSkills.length === 0 || specializationsForSkills.length === 0) {
+    // return;
+    if (Object.keys(linksMap).length === 0 || specializations.length === 0 || specializationsForSkills.length === 0) {
       return;
     }
 
@@ -56,7 +115,7 @@ export default function Map () {
       let yIndentSum = 0;
       for (let i = 0; i < specializations.length; i++) { // iterate through each row
         const specId = specializations[i].id;
-        // check if skill suppose to be in row
+        // check if skill belongs to a spec (row)
         if (specializationsForSkills[skill.id].specializations.find(spec => spec.id === specId)) {
           tempMap[specId].push(skill.id);
           yIndentSum += i * SIZES.cardHeight + (2 * i + 1) * SIZES.marginTop;
@@ -70,16 +129,16 @@ export default function Map () {
       // find longest row
 
       const columnsCount = longestCurrentSpecLength - 1;
-      const x = columnsCount * SIZES.cardWidth + (2 * columnsCount + 1) * SIZES.marginLeft; // |*[] - indent + size
+      const x = columnsCount * SIZES.cardWidth + (2 * columnsCount + 1) * SIZES.marginLeft; // |*[] calculate x = indent + size
       const y = yIndentSum / specializationsForSkills[skill.id].specializations.length; // centralize between specs (rows)
 
       total[skill.id] = {
-        x: x, // |*[] - indent + size
+        x: x, // |*[] calculate x = indent + size
         y: y, // centralize between specs (rows)
         skill,
       };
       return total;
-    }, []);
+    }, {});
 
     const newGraph = Object.values(newGraphData).map((data, i) => (
       <g
@@ -117,30 +176,23 @@ export default function Map () {
         );
       });
 
-    const newLines = Object.keys(tempMap).reduce((total, specId) => {
-      let prevNotNullSkillId;
+    const newLines = Object.keys(linksMap).reduce((total, skillId) => {
+      const skillLeft = newGraphData[skillId];
+      for (const child of Object.values(linksMap[skillId].children)) {
+        const skillRight = newGraphData[child.skillId];
 
-      for (let i = 0; i < tempMap[specId].length; i++) {
-        if (tempMap[specId][i]) {
-          if (prevNotNullSkillId) {
-            const skillLeft = newGraphData[prevNotNullSkillId];
-            const skillRight = newGraphData[tempMap[specId][i]];
-
-            total.push(
-              <line
-                key={`${specId}-${i}`}
-                x1={skillLeft.x + SIZES.cardWidth}
-                y1={skillLeft.y + SIZES.cardHeight / 2}
-                x2={skillRight.x}
-                y2={skillRight.y + SIZES.cardHeight / 2}
-                markerEnd="url(#arrowhead)"
-              />,
-            );
-          }
-
-          prevNotNullSkillId = tempMap[specId][i];
-        }
+        total.push(
+          <line
+            key={`${skillId}-${child.skillId}`}
+            x1={skillLeft.x + SIZES.cardWidth}
+            y1={skillLeft.y + SIZES.cardHeight / 2}
+            x2={skillRight.x}
+            y2={skillRight.y + SIZES.cardHeight / 2}
+            markerEnd="url(#arrowhead)"
+          />,
+        );
       }
+
       return total;
     }, []);
 
@@ -150,7 +202,7 @@ export default function Map () {
     setMarkupLines(newMarkupLines);
     setLines(newLines);
     setGraph(newGraph);
-  }, [parsedSkills, specializationsForSkills, specializations]);
+  }, [linksMap, parsedSkills, specializationsForSkills, specializations]);
 
   return (
     <div className={styles.map}>
