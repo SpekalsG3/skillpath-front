@@ -7,10 +7,10 @@ import { Content } from './components/content';
 import Header from 'components/ui/header';
 import Footer from 'components/ui/footer';
 
-export default function SignUpPage () {
+export default function SignInPage () {
   const head = useHeader(
-    'Sign up to pick skills',
-    'Sign up so you can create your own path',
+    'Sign in to view skills',
+    'Sign in so you can progress on your own path',
   );
 
   return (

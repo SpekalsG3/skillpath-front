@@ -1,7 +1,6 @@
 import React from 'react';
 
 import 'styles/globals.scss';
-import 'styles/input-range.css';
 import 'styles/variables.scss';
 
 import { Provider } from 'react-redux';

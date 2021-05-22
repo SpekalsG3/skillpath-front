@@ -23,3 +23,48 @@
 .headerSignUp {
   border: 1px solid #fff;
 }
+
+.profileWrapper {
+  position: relative;
+  color: $colorTextMain;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+}
+
+.profileDropdownTooltip {
+  margin-left: 5px;
+  width: 5px;
+  height: 5px;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  border-top: 5px solid #fff;
+}
+
+.profileDropdownOpened {
+  .profileDropdownTooltip {
+    border-top: none;
+    border-bottom: 5px solid #fff;
+  }
+}
+
+.profileDropdown {
+  position: absolute;
+  right: 0;
+  min-width: 100%;
+  margin-top: 10px;
+  background: $colorMain;
+  border-radius: 5px;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.profileDropdownItem {
+  padding: 8px;
+
+  & + & {
+    border-top: 1px solid #fff;
+  }
+}

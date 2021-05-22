@@ -48,7 +48,6 @@ export function Content () {
   };
 
   useEffect(() => {
-    console.log('111', params);
     setPopup(messages[params.message]);
   }, [params]);
 
