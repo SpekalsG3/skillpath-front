@@ -40,7 +40,7 @@ export default function IndexPage () {
       {head}
       <Header/>
       <div style={{
-        'min-height': 'calc(100vh - 175px)',
+        minHeight: 'calc(100vh - 175px)',
       }}>
         <Map onSkillSelect={onSkillSelect} />
         {selectedSkill && user && <SkillSidebar skill={selectedSkill} />}
