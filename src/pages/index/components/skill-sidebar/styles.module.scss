@@ -37,15 +37,27 @@
   cursor: pointer;
 }
 
-.sidebarButtonPositive {
-  border: 2px solid $colorTextSuccessSecondary;
+.sidebarButtonKnownPref {
+  border: 2px solid $colorThree;
 
   &:hover {
-    background: rgba($colorTextSuccess, 0.2);
+    background: rgba($colorThree, 0.2);
   }
 
   &:active {
-    background: rgba($colorTextSuccess, 0.3);
+    background: rgba($colorThree, 0.3);
+  }
+}
+
+.sidebarButtonLocalPref {
+  border: 2px solid $colorFour;
+
+  &:hover {
+    background: rgba($colorFour, 0.2);
+  }
+
+  &:active {
+    background: rgba($colorFour, 0.3);
   }
 }
 

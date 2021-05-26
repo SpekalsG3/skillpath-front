@@ -57,7 +57,7 @@ export default function SkillSidebar ({ skill }) {
               onClick={handleTogglePreference(skill)}
               className={cn(
                 styles.sidebarButton,
-                styles.sidebarButtonPositive,
+                styles.sidebarButtonKnownPref,
                 { [styles.sidebarButtonNegative]: preferences[skill.id] },
               )}
             >
@@ -71,7 +71,7 @@ export default function SkillSidebar ({ skill }) {
               onClick={handleToggleLocalPreference(skill)}
               className={cn(
                 styles.sidebarButton,
-                styles.sidebarButtonPositive,
+                styles.sidebarButtonLocalPref,
                 { [styles.sidebarButtonNegative]: localPreferences[skill.id] },
               )}
             >

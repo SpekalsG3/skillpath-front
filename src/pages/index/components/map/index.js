@@ -47,9 +47,9 @@ export default function Map ({ onSkillSelect }) {
     dispatch(fetchSpecializations());
   }, []);
 
-  const createLine = (skillLeft, skillRight, isDisabled = false) => (
+  const createLine = ({ skillLeft, skillRight, isDisabled = false, isHighlighted = false } = {}) => (
     <line
-      className={isDisabled ? styles.lineDisabled : ''}
+      className={(isDisabled && styles.lineDisabled) || (isHighlighted && styles.lineHighlighted) || ''}
       key={`${skillLeft.skill.id}-${skillRight.skill.id}`}
       x1={skillLeft.x + SIZES.cardWidth}
       y1={skillLeft.y + SIZES.cardHeight / 2}
@@ -188,7 +188,10 @@ export default function Map ({ onSkillSelect }) {
               };
             }
 
-            total.push(createLine(skillLeft, skillRight));
+            total.push(createLine({
+              skillLeft,
+              skillRight,
+            }));
           }
 
           prevNotNullSkillId = tempMap[specId][i];
@@ -199,42 +202,132 @@ export default function Map ({ onSkillSelect }) {
 
     if (localPreferences) {
       const metSkills = [];
+      const goals = [[parsedSkills[0].id]];
+
+      let mostRightGoalId;
+      let mostRightGoalIndex = -1;
+      Object.keys(localPreferences).forEach((skillId) => {
+        for (const spec of Object.values(tempMap)) {
+          let columnIndex = spec.indexOf(Number(skillId));
+          if (columnIndex > -1) {
+            if (columnIndex > mostRightGoalIndex) {
+              mostRightGoalIndex = columnIndex;
+              mostRightGoalId = spec[columnIndex];
+            }
+
+            break;
+          }
+        }
+      });
+
+      const linksMap = {
+        [mostRightGoalId]: {
+          children: [],
+        },
+      };
+
+      for (let leftSkillIndex = mostRightGoalIndex - 1; leftSkillIndex >= 0; leftSkillIndex--) {
+        for (const skillsInSpec of Object.values(tempMap)) {
+          const leftSkillId = skillsInSpec[leftSkillIndex];
+
+          if (leftSkillId !== null) {
+            const leftSkillLines = finalLines[leftSkillId];
+
+            if (!leftSkillLines) {
+              linksMap[leftSkillId] = {
+                children: [],
+              };
+            } else if (Object.keys(localPreferences).includes(String(leftSkillId))) {
+              Object.keys(leftSkillLines).forEach(rawRightSkillId => {
+                const rightSkillId = Number(rawRightSkillId);
+                linksMap[leftSkillId] = {
+                  children: [].concat(linksMap[rightSkillId]?.children || []),
+                };
+              });
+            } else {
+              Object.keys(leftSkillLines).forEach(rawRightSkillId => {
+                const rightSkillId = Number(rawRightSkillId);
+                if (Object.keys(linksMap).includes(String(rightSkillId))) {
+                  if (linksMap[leftSkillId]) {
+                    linksMap[leftSkillId].children.push(rightSkillId);
+                  } else {
+                    linksMap[leftSkillId] = {
+                      children: [rightSkillId].concat(linksMap[rightSkillId].children),
+                    };
+                  }
+                }
+              });
+            }
+
+            break;
+          }
+        }
+      }
+
+      Object.keys(localPreferences)
+        .sort((a, b) => newGraphData[b].skill.count - newGraphData[a].skill.count)
+        .forEach((rawSkillId) => {
+          const maxIterations = goals.length;
+          const skillId = Number(rawSkillId);
+          for (let j = 0; j < maxIterations; j++) {
+            const goalsPath = goals[j];
+            let isSamePath = true;
+
+            for (let i = goalsPath.length - 1; i >= 0; i--) {
+              const goalId = String(goalsPath[i]);
+
+              if (linksMap[String(goalId)].children.includes(skillId)) {
+                if (isSamePath) {
+                  goalsPath.push(skillId);
+                } else {
+                  goals.push([...goalsPath.slice(0, i + 1), skillId]);
+                }
+
+                break;
+              }
+
+              isSamePath = false;
+            }
+          }
+        });
 
       Object.keys(localPreferences).forEach(rawSkillId => {
         const skillId = Number(rawSkillId);
         metSkills.push(rawSkillId);
 
-        let currentSkillId = -1;
-        let i = -1;
+        let leftSkillIndex = -1;
         for (const spec of Object.values(tempMap)) {
           let columnIndex = spec.indexOf(skillId);
           if (columnIndex > -1) {
-            currentSkillId = spec[columnIndex];
-            i = columnIndex - 1;
+            leftSkillIndex = columnIndex - 1;
             break;
           }
         }
 
-        for (i; i >= 0; i--) {
+        for (leftSkillIndex; leftSkillIndex >= 0; leftSkillIndex--) {
           for (const skillsInSpec of Object.values(tempMap)) {
-            const rawLeftSkillId = skillsInSpec[i];
+            const rawLeftSkillId = skillsInSpec[leftSkillIndex];
             if (rawLeftSkillId !== null) {
               const leftSkillId = String(rawLeftSkillId);
               const leftSkillLines = finalLines[leftSkillId];
 
+              if (!leftSkillLines) {
+                continue;
+              }
+
               Object.keys(leftSkillLines).forEach(rightSkillId => {
                 if (metSkills.includes(rightSkillId)) {
                   metSkills.push(leftSkillId);
-                  newLines.splice(leftSkillLines[rightSkillId], 1, createLine(
-                    newGraphData[leftSkillId],
-                    newGraphData[rightSkillId],
-                  ));
+                  newLines.splice(leftSkillLines[rightSkillId], 1, createLine({
+                    skillLeft: newGraphData[leftSkillId],
+                    skillRight: newGraphData[rightSkillId],
+                  }));
                 } else {
-                  newLines.splice(leftSkillLines[rightSkillId], 1, createLine(
-                    newGraphData[leftSkillId],
-                    newGraphData[rightSkillId],
-                    true,
-                  ));
+                  newLines.splice(leftSkillLines[rightSkillId], 1, createLine({
+                    skillLeft: newGraphData[leftSkillId],
+                    skillRight: newGraphData[rightSkillId],
+                    isDisabled: true,
+                  }));
                 }
               });
 
@@ -243,6 +336,127 @@ export default function Map ({ onSkillSelect }) {
           }
         }
       });
+
+      for (const goalsPath of goals) {
+        const path = [];
+        const mostRightPreferredSkillId = goalsPath.pop();
+        let tempPath = {
+          [mostRightPreferredSkillId]: {
+            length: 0,
+            next: null,
+          },
+        };
+
+        const updateTempPath = (leftSkillId) => {
+          const leftSkillLines = finalLines[leftSkillId];
+
+          Object.keys(leftSkillLines).forEach(rightSkillId => {
+            if (tempPath.hasOwnProperty(rightSkillId)) {
+              if (tempPath.hasOwnProperty(leftSkillId)) {
+                if (tempPath[rightSkillId].length + 1 < tempPath[leftSkillId].length) {
+                  tempPath[leftSkillId] = {
+                    length: tempPath[rightSkillId].length + 1,
+                    next: rightSkillId,
+                  };
+                }
+              } else {
+                tempPath[leftSkillId] = {
+                  length: tempPath[rightSkillId].length + 1,
+                  next: rightSkillId,
+                };
+              }
+            }
+          });
+        };
+
+        let rightGoalId = mostRightPreferredSkillId;
+
+        for (let leftGoalIndex = goalsPath.length - 1; leftGoalIndex >= 0; leftGoalIndex--) {
+          const leftGoalSkillId = goalsPath[leftGoalIndex];
+
+          let leftSkillIndex = -1;
+          for (const spec of Object.values(tempMap)) {
+            let columnIndex = spec.indexOf(rightGoalId);
+            if (columnIndex > -1) {
+              leftSkillIndex = columnIndex - 1;
+              break;
+            }
+          }
+
+          let needToBreak = false;
+
+          for (leftSkillIndex; leftSkillIndex >= 0; leftSkillIndex--) {
+            for (const skillsInSpec of Object.values(tempMap)) {
+              const leftSkillId = skillsInSpec[leftSkillIndex];
+
+              if (leftSkillId !== null) {
+                const leftSkillLines = finalLines[leftSkillId];
+
+                if (!leftSkillLines) {
+                  continue;
+                }
+
+                if (leftSkillId === leftGoalSkillId) {
+                  updateTempPath(leftSkillId);
+
+                  let nextOnPathId = leftSkillId;
+
+                  Object.keys(leftSkillLines).forEach(rightSkillId => {
+                    if (tempPath.hasOwnProperty(rightSkillId)) {
+                      if (tempPath[rightSkillId].length < tempPath[nextOnPathId].length) {
+                        nextOnPathId = rightSkillId;
+                      }
+                    }
+                  });
+
+                  const localPath = [nextOnPathId];
+
+                  while (tempPath[nextOnPathId].next) {
+                    const nextId = tempPath[nextOnPathId].next;
+                    localPath.push(nextId);
+                    nextOnPathId = nextId;
+                  }
+
+                  path.unshift(...localPath);
+
+                  tempPath = {
+                    [leftSkillId]: {
+                      length: 0,
+                      next: null,
+                    },
+                  };
+
+                  needToBreak = true;
+                } else {
+                  updateTempPath(leftSkillId);
+                }
+
+                break;
+              }
+            }
+
+            if (needToBreak) {
+              break;
+            }
+          }
+
+          rightGoalId = leftGoalSkillId;
+        }
+
+        let leftOnPathSkillId = parsedSkills[0].id;
+        for (let rightOnPathIndex = 0; rightOnPathIndex < path.length; rightOnPathIndex++) {
+          const leftSkillLines = finalLines[leftOnPathSkillId];
+          const rightOnPathSkillId = path[rightOnPathIndex];
+
+          newLines.splice(leftSkillLines[rightOnPathSkillId], 1, createLine({
+            skillLeft: newGraphData[leftOnPathSkillId],
+            skillRight: newGraphData[rightOnPathSkillId],
+            isHighlighted: true,
+          }));
+
+          leftOnPathSkillId = rightOnPathSkillId;
+        }
+      }
     }
 
     if (userPreferences) {
@@ -279,18 +493,18 @@ export default function Map ({ onSkillSelect }) {
                     metSkills[currentSkillId] = Object.keys(finalLines[currentSkillId]);
                   }
 
-                  newLines.splice(finalLines[leftSkillId][currentSkillId], 1, createLine(
-                    newGraphData[leftSkillId],
-                    newGraphData[currentSkillId],
-                  ));
+                  newLines.splice(finalLines[leftSkillId][currentSkillId], 1, createLine({
+                    skillLeft: newGraphData[leftSkillId],
+                    skillRight: newGraphData[currentSkillId],
+                  }));
                 } else {
                   if (finalLines[currentSkillId]) {
                     Object.keys(finalLines[currentSkillId]).forEach(rightSkillId => {
-                      newLines.splice(finalLines[currentSkillId][rightSkillId], 1, createLine(
-                        newGraphData[currentSkillId],
-                        newGraphData[rightSkillId],
-                        true,
-                      ));
+                      newLines.splice(finalLines[currentSkillId][rightSkillId], 1, createLine({
+                        skillLeft: newGraphData[currentSkillId],
+                        skillRight: newGraphData[rightSkillId],
+                        isDisabled: true,
+                      }));
                     });
                   }
                 }

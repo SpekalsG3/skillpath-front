@@ -120,14 +120,14 @@ export const setPreferences = ({ preferences }) => dispatch => {
 export const addLocalPreference = (skillId) => async (dispatch) => {
   await dispatch({
     type: ADD_LOCAL_PREFERENCE,
-    skillId,
+    skillId: Number(skillId),
   });
 };
 
 export const deleteLocalPreference = (skillId) => async (dispatch) => {
   await dispatch({
     type: DELETE_LOCAL_PREFERENCE,
-    skillId,
+    skillId: Number(skillId),
   });
 };
 

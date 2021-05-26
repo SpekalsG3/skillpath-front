@@ -29,7 +29,11 @@
 }
 
 .lineDisabled {
-  stroke: #5c5c5c !important;
+  stroke: $colorLineDisabled !important;
+}
+
+.lineHighlighted {
+  stroke: $colorFive !important;
 }
 
 .skillWithUserPreference {
