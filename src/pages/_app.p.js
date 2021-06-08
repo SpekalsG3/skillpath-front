@@ -14,7 +14,7 @@ export default function App ({ Component, pageProps, initialState }) {
   return (
     <Provider store={store}>
       <Head>
-        <title>CoinRabbit</title>
+        <title>SkillPath</title>
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon.ico" />
         <link rel="manifest" href="/site.webmanifest" />
